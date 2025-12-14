@@ -199,7 +199,9 @@ function renderMangaGrid(mangaList, containerId, showRemoveBtn = false) {
         return;
     }
     container.classList.toggle('list-view', state.currentView === 'list');
-    container.innerHTML = mangaList.map(manga => `
+    container.innerHTML = mangaList.map(manga => {
+        const year = manga.published?.prop?.from?.year || (manga.published?.from ? new Date(manga.published.from).getFullYear() : null);
+        return `
         <div class="manga-card" onclick="openMangaDetail(${manga.mal_id})">
             ${isFavorite(manga.mal_id) ? '<div class="favorite-badge">♥</div>' : ''}
             <img class="manga-card-image" 
@@ -209,11 +211,11 @@ function renderMangaGrid(mangaList, containerId, showRemoveBtn = false) {
                  loading="lazy">
             <div class="manga-card-overlay">
                 <h3 class="manga-card-title">${manga.title}</h3>
-                <p class="manga-card-chapter">${manga.chapters ? `${manga.chapters} chapters` : manga.status || 'Unknown'}</p>
+                <p class="manga-card-chapter">${manga.chapters ? `${manga.chapters} chapters` : manga.status || 'Unknown'}${year ? ` • ${year}` : ''}</p>
                 <p class="manga-card-views">${manga.score || 'N/A'}</p>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 function renderPagination(containerId, currentPage, totalPages, onPageChange) {
@@ -391,7 +393,8 @@ function toggleFavorite(mangaId) {
             images: manga.images,
             chapters: manga.chapters,
             status: manga.status,
-            score: manga.score
+            score: manga.score,
+            published: manga.published
         });
         showToast('Added to favorites!');
     }
@@ -408,6 +411,7 @@ function addToHistory(manga) {
         chapters: manga.chapters,
         status: manga.status,
         score: manga.score,
+        published: manga.published,
         viewedAt: Date.now()
     });
     if (state.history.length > 50) state.history = state.history.slice(0, 50);
