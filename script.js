@@ -69,10 +69,22 @@ document.addEventListener('DOMContentLoaded', () => {
     initGenres();
     fetchTrendingManga();
     fetchMangaList();
+    initScrollToTop();
     document.getElementById('searchInput').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') searchManga();
     });
 });
+
+function initScrollToTop() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            scrollBtn.classList.add('visible');
+        } else {
+            scrollBtn.classList.remove('visible');
+        }
+    });
+}
 
 function applyTheme() {
     document.body.classList.toggle('light-theme', state.theme === 'light');
@@ -186,7 +198,7 @@ function renderMangaGrid(mangaList, containerId, showRemoveBtn = false) {
         `;
         return;
     }
-    container.className = `manga-grid ${state.currentView === 'list' ? 'list-view' : ''}`;
+    container.classList.toggle('list-view', state.currentView === 'list');
     container.innerHTML = mangaList.map(manga => `
         <div class="manga-card" onclick="openMangaDetail(${manga.mal_id})">
             ${isFavorite(manga.mal_id) ? '<div class="favorite-badge">♥</div>' : ''}
@@ -403,6 +415,10 @@ function addToHistory(manga) {
 }
 
 function showFavorites() {
+    const countEl = document.getElementById('favoritesCount');
+    if (countEl) {
+        countEl.textContent = state.favorites.length > 0 ? `(${state.favorites.length} manga)` : '';
+    }
     if (state.favorites.length === 0) {
         document.getElementById('favoritesGrid').innerHTML = `
             <div class="no-results">
